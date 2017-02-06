@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>svg-tachometer demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+    <link rel="import" href="../svg-tachometer.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+
+    </style>
+</head>
+
+<body>
+    <div class="vertical-section-container centered">
+        <h3>Basic svg-tachometer demo</h3>
+        <demo-snippet>
+            <template>
+              <style is="custom-style">
+                .flex {
+                  @apply(--layout-horizontal);
+                }
+              </style>
+              <div class="container flex">
+                <svg-tachometer value="0"></svg-tachometer>
+                <svg-tachometer value="75"></svg-tachometer>
+                <svg-tachometer value="100"></svg-tachometer>
+              </div>
+            </template>
+        </demo-snippet>
+        <demo-snippet>
+            <template>
+              <svg-tachometer value="75" angle="90"></svg-tachometer>
+            </template>
+        </demo-snippet>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,201 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`svg-tachometer`
+value indicator in the style of a tachometer
+
+### Styling
+
+`<svg-tachometer>` provides the following custom properties and mixins
+for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--color-1` | lowest value color | #0000ff
+`--color-2` | low value color | #00ffff
+`--color-3` | middle value color | #00ff00
+`--color-4` | high value color | #ffff00
+`--color-5` | highest value color | #ff0000
+
+@demo demo/index.html
+-->
+
+<dom-module id="svg-tachometer">
+    <template>
+    <style>
+      :host {
+        --color-1: #0000ff;
+        --color-2: #00ffff;
+        --color-3: #00ff00;
+        --color-4: #ffff00;
+        --color-5: #ff0000;
+        --value-size: 40px;
+        --value-color: #666666;
+        --unit-size: 32px;
+        --unit-color: #888888;
+        display: flex;
+        justify-content: center;
+        align-content: stretch;
+        align-items: stretch;
+        width: 100%;
+        height: 100%;
+      }
+      #gradStop1 {
+        stop-color: var(--color-1);
+        stop-opacity: 1;
+      }
+
+      #gradStop2, #gradStop3 {
+        stop-color: var(--color-2);
+        stop-opacity: 1;
+      }
+
+      #gradStop4, #gradStop5 {
+        stop-color: var(--color-3);
+        stop-opacity: 1;
+      }
+
+      #gradStop6, #gradStop7 {
+        stop-color: var(--color-4);
+        stop-opacity: 1;
+      }
+
+      #gradStop8 {
+        stop-color: var(--color-5);
+        stop-opacity: 1;
+      }
+
+      #valueText {
+        font-size: var(--value-size);
+        fill: var(--value-color);
+      }
+
+      #unitText {
+        font-size: var(--unit-size);
+        fill: var(--unit-color);
+      }
+    </style>
+    <svg viewbox="-100 -100 200 200" width="100%" height="100%">
+      <defs>
+        <linearGradient id="gradient1" x1="0%" y1="100%" x2="0%" y2="0%" gradientUnits="userSpaceOnUse">
+            <stop id="gradStop1" offset="5%" />
+            <stop id="gradStop2" offset="95%" />
+        </linearGradient>
+        <linearGradient id="gradient2" x1="0%" y1="100%" x2="100%" y2="100%" gradientUnits="userSpaceOnUse">
+            <stop id="gradStop3" offset="5%" />
+            <stop id="gradStop4" offset="95%" />
+        </linearGradient>
+        <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="0%" gradientUnits="userSpaceOnUse">
+            <stop id="gradStop5" offset="5%" />
+            <stop id="gradStop6" offset="95%" />
+        </linearGradient>
+        <linearGradient id="gradient4" x1="0%" y1="0%" x2="0%" y2="100%" gradientUnits="userSpaceOnUse">
+            <stop id="gradStop7" offset="5%" />
+            <stop id="gradStop8" offset="95%" />
+        </linearGradient>
+    </defs>
+    <!--<rect x="-99" y="-99" width="198" height="198"  stroke="black" stroke-width="2" fill="none" />-->
+    <g>
+      <path id="arch1" fill="url(#gradient1)"></path>
+      <path id="arch2" fill="url(#gradient2)"></path>
+      <path id="arch3" fill="url(#gradient3)"></path>
+      <path id="arch4" fill="url(#gradient4)"></path>
+    </g>
+    <g id="indicator">
+      <path id="indicatorPath" fill="black" d="M-10 10 l20 0 l -10 -105"></path>
+    </g>
+    <text id="valueText" x="0" y="60" text-anchor="middle">{{value}}</text>
+    <text id="unitText" x="0" y="85" text-anchor="middle">{{unit}}</text>
+    </svg>
+  </template>
+
+    <script>
+        Polymer({
+
+            is: 'svg-tachometer',
+
+            properties: {
+              /** lower limit of the scale */
+                min: {
+                    type: Number,
+                    value: 0
+                },
+                /** upper limit of the scale */
+                max: {
+                    type: Number,
+                    value: 100
+                },
+                /** angle between min and max */
+                angle: {
+                  type: Number,
+                  value: 260
+                },
+                /** value the indicator points to */
+                value: {
+                    type: Number,
+                    value: 35,
+                    observer: '_valueChanged'
+                },
+                unit: {
+                  type: String,
+                  value: 'rpm'
+                }
+            },
+
+            _polarToCartesian: function(centerX, centerY, radius, angleInDegrees) {
+                var angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+
+                return {
+                    x: centerX + (radius * Math.cos(angleInRadians)),
+                    y: centerY + (radius * Math.sin(angleInRadians)),
+                };
+            },
+
+            _makeArchPath: function(outer_radius, inner_radius, startAngle, endAngle, gradient) {
+
+                var p1 = this._polarToCartesian(0, 0, outer_radius, endAngle);
+                var p2 = this._polarToCartesian(0, 0, outer_radius, startAngle);
+
+                var p3 = this._polarToCartesian(0, 0, inner_radius, startAngle);
+                var p4 = this._polarToCartesian(0, 0, inner_radius, endAngle);
+
+                if(gradient){
+                  gradient.setAttribute("x1", p3.x);
+                  gradient.setAttribute("x2", p4.x);
+                  gradient.setAttribute("y1", p3.y);
+                  gradient.setAttribute("y2", p4.y);
+                }
+
+                var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+                var d = [
+                    "M", p1.x, p1.y,
+                    "A", outer_radius, outer_radius, 0, largeArcFlag, 0, p2.x, p2.y,
+                    "L", p3.x, p3.y,
+                    "A", inner_radius, inner_radius, 0, largeArcFlag, 1, p4.x, p4.y,
+
+                ].join(" ");
+
+                return d;
+            },
+
+            _valueChanged: function(newValue, oldValue) {
+                var angle = (newValue * this.angle / (this.max - this.min)) - (this.angle / 2);
+                if(angle > (this.angle / 2)){
+                  angle = this.angle / 2;
+                } else if (angle < -(this.angle / 2)) {
+                  angle = -(this.angle / 2);
+                }
+                this.$.indicator.setAttribute("transform", "rotate(" + angle + " 0 0)");
+            },
+
+            ready: function() {
+                this.$.arch1.setAttribute("d", this._makeArchPath(96, 70, -(this.angle / 2), -(this.angle / 4), this.$.gradient1));
+                this.$.arch2.setAttribute("d", this._makeArchPath(96, 70, -(this.angle / 4), 0, this.$.gradient2));
+                this.$.arch3.setAttribute("d", this._makeArchPath(96, 70, 0, (this.angle / 4), this.$.gradient3));
+                this.$.arch4.setAttribute("d", this._makeArchPath(96, 70, (this.angle / 4), (this.angle / 2), this.$.gradient4));
+            }
+
+        });
+    </script>
+</dom-module>

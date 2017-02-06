@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>svg-tachometer test</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../svg-tachometer.html">
+  </head>
+  <body>
+    <test-fixture id="svgTacho">
+      <template>
+        <svg-tachometer></svg-tachometer>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('<svg-tachometer>', function() {
+
+        var tacho;
+
+        setup(function(){
+          tacho = fixture('svgTacho');
+        });
+
+        test('instantiating the element works', function() {
+          assert.equal(tacho.is, 'svg-tachometer');
+        });
+
+        test('value changes indicator position', function(){
+          tacho.value = 100;
+          expect(tacho.$$('#indicator').hasAttribute('transform')).to.be.eql(true);
+          assert.equal(tacho.$$('#indicator').getAttribute('transform'), 'rotate(130 0 0)');
+
+        });
+      });
+    </script>
+  </body>
+</html>
